@@ -6,18 +6,22 @@ import java.sql.SQLException;
 
 public class ItemDAO {
 
-    public boolean validateItem(String name, String description,
-                                String location, String status) {
-        return name != null && !name.isBlank()
-                && description != null && !description.isBlank()
-                && location != null && !location.isBlank()
-                && status != null && !status.isBlank();
-    }
+    
+public boolean validateItem(String name, String description,
+                            String location, String status) {
+    return name != null && !name.isBlank()
+            && location != null && !location.isBlank()
+            && status != null && !status.isBlank();
+}
 
   
 public void addItem(int userId, String name, String category,
                     String description, String location,
                     String itemDate, String reportType) {
+                        if (!validateItem(name, description, location, reportType)) {
+    System.out.println("Invalid item details.");
+    return;
+}
 
     String sql = "INSERT INTO items "
             + "(item_name, description, category, location, "
@@ -197,4 +201,6 @@ public void filterByStatus(String status) {
     }
 }
 }
+
+
 
