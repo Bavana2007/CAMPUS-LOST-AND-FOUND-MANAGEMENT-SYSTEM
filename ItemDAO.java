@@ -1,4 +1,3 @@
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -6,21 +5,30 @@ import java.sql.SQLException;
 
 public class ItemDAO {
 
-    public boolean validateItem(String name, String description,
-                                String location, String status) {
-        return name != null && !name.isBlank()
-                && description != null && !description.isBlank()
-                && location != null && !location.isBlank()
-                && status != null && !status.isBlank();
+    
+
+public boolean validateItem(String name, String description,
+                            String location, String status) {
+    return name != null && !name.isBlank()
+            && description != null && !description.isBlank()
+            && location != null && !location.isBlank()
+            && status != null
+            && (status.equalsIgnoreCase("Lost")
+                || status.equalsIgnoreCase("Found"));
+}
+
+
+public void addItem(String name, String category,
+                    String description, String location,
+                    String itemDate, String status, int reportedBy) {
+
+    if (!validateItem(name, description, location, status)) {
+        System.out.println("Invalid item details.");
+        return;
     }
 
-  
-public void addItem(int userId, String name, String category,
-                    String description, String location,
-                    String itemDate, String reportType) {
-
     String sql = "INSERT INTO items "
-            + "(item_name, description, category, location, "
+            + "(item_name, category, description, location, "
             + "date_reported, status, reported_by) "
             + "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
@@ -28,23 +36,26 @@ public void addItem(int userId, String name, String category,
          PreparedStatement ps = con.prepareStatement(sql)) {
 
         ps.setString(1, name);
-        ps.setString(2, description);
-        ps.setString(3, category);
+        ps.setString(2, category);
+        ps.setString(3, description);
         ps.setString(4, location);
         ps.setDate(5, java.sql.Date.valueOf(itemDate));
-        ps.setString(6, reportType);
-        ps.setInt(7, userId);
+        ps.setString(6, status);
+        ps.setInt(7, reportedBy);
 
         int rows = ps.executeUpdate();
 
         if (rows > 0) {
-            System.out.println("Item added successfully!");
+            System.out.println("Item added successfully.");
         }
 
-    } catch (SQLException | IllegalArgumentException e) {
+    } catch (Exception e) {
         System.out.println("Error adding item: " + e.getMessage());
     }
 }
+
+
+  
 
 
     public void viewItems() {
@@ -197,4 +208,3 @@ public void filterByStatus(String status) {
     }
 }
 }
-
