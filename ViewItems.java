@@ -1,7 +1,15 @@
 package campuslostandfound;
+
 import javax.swing.*;
 import java.awt.*;
-public class ViewItems extends JFrame{
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.format.DateTimeFormatter;
+
+public class ViewItems extends JFrame {
+
     public ViewItems() {
 
         setTitle("View Lost and Found Items");
@@ -14,20 +22,64 @@ public class ViewItems extends JFrame{
             "Location", "Date", "Status"
         };
 
-        Object[][] data = {
-            {"Water Bottle", "Water Bottle", "Lost",
-                "Library", "15-10-2026", "Missing"},
-            {"ID Card", "ID Card", "Found",
-                "Canteen", "16-10-2026", "Available"},
-            {"Java Book", "Books", "Lost",
-                "Classroom", "16-10-2026", "Missing"}
-        };
+        javax.swing.table.DefaultTableModel model =
+            new javax.swing.table.DefaultTableModel(columns, 0) {
+                @Override
+                public boolean isCellEditable(int row, int column) {
+                    return false;
+                }
+            };
 
-        JTable table = new JTable(data, columns);
+        JTable table = new JTable(model);
 
         JScrollPane scrollPane = new JScrollPane(table);
-
         add(scrollPane, BorderLayout.CENTER);
+
+        loadItems(model);
+    }
+
+    private void loadItems(
+            javax.swing.table.DefaultTableModel model) {
+
+        String sql = "SELECT item_name, category, report_type, "
+                   + "location, item_date, status "
+                   + "FROM items ORDER BY item_id DESC";
+
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            DateTimeFormatter formatter =
+                DateTimeFormatter.ofPattern("dd-MM-yyyy");
+
+            while (rs.next()) {
+
+                String itemName = rs.getString("item_name");
+                String category = rs.getString("category");
+                String type = rs.getString("report_type");
+                String location = rs.getString("location");
+
+                String date = rs.getDate("item_date")
+                                .toLocalDate()
+                                .format(formatter);
+
+                String status = rs.getString("status");
+
+                model.addRow(new Object[]{
+                    itemName, category, type,
+                    location, date, status
+                });
+            }
+
+        } catch (SQLException e) {
+
+            JOptionPane.showMessageDialog(
+                this,
+                "Unable to load items: " + e.getMessage(),
+                "Database Error",
+                JOptionPane.ERROR_MESSAGE
+            );
+        }
     }
 
     public static void main(String[] args) {
