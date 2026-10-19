@@ -2,8 +2,13 @@ public class TestUpdateItem {
     public static void main(String[] args) {
         ItemDAO dao = new ItemDAO();
 
-        dao.updateItem(2, "Water Bottle", "Bottle",
-                "Blue water bottle", "Library", "OPEN");
+        System.out.println("Starting update test...");
+
+        dao.updateItem(1, "Black Bag", "Bag",
+                "Black bag found near classroom",
+                "Library", "Found");
+
+        System.out.println("Update method finished.");
 
         dao.viewItems();
     }
