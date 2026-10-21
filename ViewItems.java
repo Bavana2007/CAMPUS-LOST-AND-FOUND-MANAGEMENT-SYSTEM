@@ -18,8 +18,8 @@ public class ViewItems extends JFrame {
         setLocationRelativeTo(null);
 
         String[] columns = {
-            "Item Name", "Category", "Type",
-            "Location", "Date", "Status"
+            "Item ID", "Item Name", "Category",
+            "Type", "Location", "Date", "Status"
         };
 
         javax.swing.table.DefaultTableModel model =
@@ -41,9 +41,9 @@ public class ViewItems extends JFrame {
     private void loadItems(
             javax.swing.table.DefaultTableModel model) {
 
-        String sql = "SELECT item_name, category, report_type, "
-                   + "location, item_date, status "
-                   + "FROM items ORDER BY item_id DESC";
+        String sql = "SELECT item_id, item_name, category, report_type, "
+           + "location, item_date, status "
+           + "FROM items ORDER BY item_id DESC";
 
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql);
@@ -54,22 +54,28 @@ public class ViewItems extends JFrame {
 
             while (rs.next()) {
 
-                String itemName = rs.getString("item_name");
-                String category = rs.getString("category");
-                String type = rs.getString("report_type");
-                String location = rs.getString("location");
+    int itemId = rs.getInt("item_id");
+    String itemName = rs.getString("item_name");
+    String category = rs.getString("category");
+    String type = rs.getString("report_type");
+    String location = rs.getString("location");
 
-                String date = rs.getDate("item_date")
-                                .toLocalDate()
-                                .format(formatter);
+    String date = rs.getDate("item_date")
+                    .toLocalDate()
+                    .format(formatter);
 
-                String status = rs.getString("status");
+    String status = rs.getString("status");
 
-                model.addRow(new Object[]{
-                    itemName, category, type,
-                    location, date, status
-                });
-            }
+    model.addRow(new Object[]{
+        itemId,
+        itemName,
+        category,
+        type,
+        location,
+        date,
+        status
+    });
+}
 
         } catch (SQLException e) {
 
