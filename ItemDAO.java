@@ -1,47 +1,51 @@
+package campuslostandfound;
+
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class ItemDAO {
-
-    
-
 public boolean validateItem(String name, String description,
                             String location, String status) {
     return name != null && !name.isBlank()
-            && description != null && !description.isBlank()
             && location != null && !location.isBlank()
             && status != null
-            && (status.equalsIgnoreCase("Lost")
-                || status.equalsIgnoreCase("Found"));
+            && (status.equalsIgnoreCase("OPEN")
+                || status.equalsIgnoreCase("CLAIMED")
+                || status.equalsIgnoreCase("RETURNED"));
 }
-
-
-public void addItem(String name, String category,
+public void addItem(int userId, String name, String category,
                     String description, String location,
-                    String itemDate, String status, int reportedBy) {
+                    String itemDate, String reportType) {
 
-    if (!validateItem(name, description, location, status)) {
+    if (name == null || name.isBlank()
+            || category == null || category.isBlank()
+            || location == null || location.isBlank()
+            || itemDate == null || itemDate.isBlank()
+            || reportType == null
+            || !(reportType.equalsIgnoreCase("LOST")
+                 || reportType.equalsIgnoreCase("FOUND"))) {
         System.out.println("Invalid item details.");
         return;
     }
 
     String sql = "INSERT INTO items "
-            + "(item_name, category, description, location, "
-            + "date_reported, status, reported_by) "
-            + "VALUES (?, ?, ?, ?, ?, ?, ?)";
+            + "(user_id, item_name, category, description, "
+            + "location, item_date, report_type, status) "
+            + "VALUES (?, ?, ?, ?, ?, ?, ?, 'OPEN')";
 
     try (Connection con = DBConnection.getConnection();
          PreparedStatement ps = con.prepareStatement(sql)) {
 
-        ps.setString(1, name);
-        ps.setString(2, category);
-        ps.setString(3, description);
-        ps.setString(4, location);
-        ps.setDate(5, java.sql.Date.valueOf(itemDate));
-        ps.setString(6, status);
-        ps.setInt(7, reportedBy);
+        ps.setInt(1, userId);
+        ps.setString(2, name);
+        ps.setString(3, category);
+        ps.setString(4, description);
+        ps.setString(5, location);
+        ps.setDate(6, java.sql.Date.valueOf(itemDate));
+        ps.setString(7, reportType.toUpperCase());
 
         int rows = ps.executeUpdate();
 
@@ -208,3 +212,4 @@ public void filterByStatus(String status) {
     }
 }
 }
+
