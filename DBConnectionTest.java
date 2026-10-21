@@ -1,35 +1,41 @@
+
+package campuslostandfound;
+
 import java.sql.Connection;
-import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
-/**
- * Small smoke test for the Member 1 JDBC deliverable.
- * Run after MySQL Server, database.sql, and Connector/J are configured.
- */
-public class DBConnectionTest {
+public final class DBConnectionTest {
+
+    private DBConnectionTest() {
+    }
+
     public static void main(String[] args) {
-        try (Connection connection = DBConnection.getConnection()) {
-            DatabaseMetaData metadata = connection.getMetaData();
+        String sql =
+            "SELECT item_id, title, item_status "
+            + "FROM items ORDER BY item_id";
 
-            System.out.println("JDBC connection successful.");
-            System.out.println("Database: " + metadata.getDatabaseProductName());
-            System.out.println("Version: " + metadata.getDatabaseProductVersion());
-            System.out.println("URL: " + metadata.getURL());
+        try (
+            Connection connection = DBConnection.getConnection();
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(sql)
+        ) {
+            System.out.println(
+                "PASS: JDBC connection and items query succeeded."
+            );
 
-            String[] expectedTables = {"users", "items", "claims"};
-            for (String table : expectedTables) {
-                try (ResultSet rs = connection.getMetaData()
-                        .getTables(connection.getCatalog(), null, table,
-                                new String[]{"TABLE"})) {
-                    System.out.println(table + " table exists: " + rs.next());
-                }
+            while (resultSet.next()) {
+                System.out.printf(
+                    "%d | %s | %s%n",
+                    resultSet.getInt("item_id"),
+                    resultSet.getString("title"),
+                    resultSet.getString("item_status")
+                );
             }
         } catch (SQLException e) {
-            System.err.println("JDBC connection failed.");
-            System.err.println("Check that MySQL is running, database exists,");
-            System.err.println("Connector/J is on the classpath, and credentials are correct.");
-            System.err.println("Reason: " + e.getMessage());
+            System.err.println("FAIL: JDBC test failed.");
+            System.err.println("Details: " + e.getMessage());
             System.exit(1);
         }
     }
