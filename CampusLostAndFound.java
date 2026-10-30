@@ -37,11 +37,8 @@ public class CampusLostAndFound {
 
             // Search functionality will be connected later.
             searchButton.addActionListener(e -> {
-                JOptionPane.showMessageDialog(
-                    frame,
-                    "Search functionality is not connected yet."
-                );
-            });
+    new SearchItems().setVisible(true);
+});
 
             JPanel panel = new JPanel(new GridLayout(0, 1, 10, 10));
             panel.setBorder(
